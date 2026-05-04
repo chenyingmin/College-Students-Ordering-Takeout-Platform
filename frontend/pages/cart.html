@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>购物车 - 校园点餐</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui;
+            background: #f8f9fc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 16px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .item-info h3 {
+            font-size: 16px;
+        }
+
+        .item-info p {
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .item-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .item-controls button {
+            width: 28px;
+            height: 28px;
+            border-radius: 14px;
+            border: none;
+            background: #e2e8f0;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .total {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .checkout {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 40px;
+            width: 100%;
+            font-size: 16px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .back a {
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🛒 我的购物车</h1>
+        <div id="cartList"></div>
+        <div id="totalSection" style="display:none;">
+            <div class="total">
+                <span>总计：</span>
+                <span id="totalPrice">¥0</span>
+            </div>
+            <button class="checkout" onclick="checkout()">✅ 确认下单</button>
+        </div>
+        <div class="back"><a href="merchant.html">← 返回商家列表</a></div>
+    </div>
+
+    <script>
+        let cart = JSON.parse(localStorage.getItem('campus_cart')) || [];
+        let orders = JSON.parse(localStorage.getItem('campus_orders')) || [];
+
+        function renderCart() {
+            const container = document.getElementById('cartList');
+            const totalSection = document.getElementById('totalSection');
+
+            if (cart.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;">🛍️ 购物车空空如也<br><a href="merchant.html">去逛逛</a></div>';
+                totalSection.style.display = 'none';
+                return;
+            }
+            totalSection.style.display = 'block';
+
+            let html = '';
+            let total = 0;
+            cart.forEach((item, idx) => {
+                const subtotal = item.price * item.quantity;
+                total += subtotal;
+                html += `
+                <div class="cart-item">
+                    <div class="item-info">
+                        <h3>${item.dishName}</h3>
+                        <p>${item.merchantName} · ¥${item.price}</p>
+                    </div>
+                    <div class="item-controls">
+                        <button onclick="updateQty(${idx}, -1)">-</button>
+                        <span>${item.quantity}</span>
+                        <button onclick="updateQty(${idx}, 1)">+</button>
+                        <button onclick="removeItem(${idx})" style="background:#fee2e2;">🗑️</button>
+                    </div>
+                </div>
+            `;
+            });
+            container.innerHTML = html;
+            document.getElementById('totalPrice').innerText = '¥' + total;
+        }
+
+        function updateQty(idx, delta) {
+            const newQty = cart[idx].quantity + delta;
+            if (newQty <= 0) {
+                cart.splice(idx, 1);
+            } else {
+                cart[idx].quantity = newQty;
+            }
+            localStorage.setItem('campus_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function removeItem(idx) {
+            cart.splice(idx, 1);
+            localStorage.setItem('campus_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function checkout() {
+            if (cart.length === 0) {
+                alert('购物车是空的');
+                return;
+            }
+            const order = {
+                id: Date.now(),
+                date: new Date().toLocaleString(),
+                items: [...cart],
+                total: cart.reduce((sum, i) => sum + i.price * i.quantity, 0),
+                status: '待取餐'
+            };
+            orders.unshift(order);
+            localStorage.setItem('campus_orders', JSON.stringify(orders));
+            localStorage.removeItem('campus_cart');
+            cart = [];
+            renderCart();
+            alert('下单成功！去"我的订单"查看');
+        }
+
+        renderCart();
+    </script>
+</body>
+
+</html>
