@@ -1,0 +1,112 @@
+<!-- 创建一个商家展示页面，包含搜索栏、筛选按钮、商家卡片列表 -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>商家展示</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .search-bar {
+            margin-bottom: 20px;
+        }
+
+        .filter-buttons {
+            margin-bottom: 20px;
+        }
+
+        .merchant-card {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+
+        .merchant-name {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .merchant-description {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>商家展示</h1>
+    <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="搜索商家..." oninput="filterMerchants()">
+    </div>
+    <div class="filter-buttons">
+        <button onclick="filterMerchants('all')">全部</button>
+        <button onclick="filterMerchants('canteen')">🍚 食堂</button>
+        <button onclick="filterMerchants('milktea')">🧋 奶茶</button>
+        <button onclick="filterMerchants('snack')">🍢 小吃</button>
+    </div>
+    <div id="merchantList">
+        <!-- 商家卡片将动态生成 -->
+    </div>
+
+    <script>
+        const merchants = [
+            { name: '食堂A', category: 'canteen', rating: 4.5, hours: '8:00-20:00', description: '提供多样化的餐饮服务' },
+            { name: '奶茶店B', category: 'milktea', rating: 4.0, hours: '10:00-22:00', description: '提供多种饮品和点心' },
+            { name: '小吃店C', category: 'snack', rating: 4.2, hours: '12:00-23:00', description: '提供各种小吃' }
+        ];
+
+        function displayMerchants(filteredMerchants) {
+            const merchantList = document.getElementById('merchantList');
+            merchantList.innerHTML = '';
+            filteredMerchants.forEach(merchant => {
+                const card = document.createElement('div');
+                card.className = 'merchant-card';
+                card.innerHTML = `
+                    <div class="merchant-name">${merchant.name} ⭐ ${merchant.rating}</div>
+                    <div class="merchant-hours">🕒 ${merchant.hours}</div>
+                    <div class="merchant-description">${merchant.description}</div>
+                    <button class="view-menu-btn">📋 查看菜单</button>
+                `;
+                merchantList.appendChild(card);
+            });
+        }
+
+        function filterMerchants(category) {
+            const searchInput = document.getElementById('searchInput').value.toLowerCase();
+            let filteredMerchants = merchants.filter(merchant =>
+                merchant.name.toLowerCase().includes(searchInput) ||
+                merchant.description.toLowerCase().includes(searchInput)
+            );
+            if (category && category !== 'all') {
+                filteredMerchants = filteredMerchants.filter(merchant => merchant.category === category);
+            }
+            displayMerchants(filteredMerchants);
+        }
+        // 添加查看菜单功能：点击按钮时弹出该商家的菜单列表
+        // 添加查看菜单功能：点击按钮时弹出该商家的菜单列表
+        document.addEventListener('click', function (event) {
+            if (event.target.classList.contains('view-menu-btn')) {
+                const merchantName = event.target.parentElement.querySelector('.merchant-name').textContent.split(' ⭐ ')[0];
+
+                // 根据不同商家显示不同菜单
+                const menus = {
+                    '食堂A': '🍚 食堂A 菜单：\n\n1. 红烧肉 ¥18\n2. 番茄炒蛋 ¥12\n3. 酸辣土豆丝 ¥10\n4. 米饭 ¥2\n5. 紫菜蛋花汤 ¥5',
+                    '奶茶店B': '🧋 奶茶店B 菜单：\n\n1. 珍珠奶茶 ¥12\n2. 杨枝甘露 ¥18\n3. 柠檬茶 ¥10\n4. 烧仙草 ¥15\n5. 冰淇淋 ¥8',
+                    '小吃店C': '🍢 小吃店C 菜单：\n\n1. 羊肉串 ¥8/串\n2. 炸鸡排 ¥15\n3. 臭豆腐 ¥10\n4. 烤冷面 ¥12\n5. 烤面筋 ¥5/串'
+                };
+
+                const menu = menus[merchantName] || `${merchantName} 的菜单：\n暂无菜品数据`;
+                alert(menu);
+            }
+        });
+
+        // 初始显示所有商家
+        displayMerchants(merchants);
+    </script>
+
+</html>
