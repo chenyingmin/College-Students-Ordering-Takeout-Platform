@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>我的订单 - 校园点餐</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui;
+            background: #f8f9fc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .order-card {
+            background: white;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .order-id {
+            color: #64748b;
+            font-size: 12px;
+        }
+
+        .order-status {
+            color: #f59e0b;
+            font-weight: bold;
+        }
+
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 14px;
+        }
+
+        .order-total {
+            text-align: right;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            font-weight: bold;
+        }
+
+        .refund-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 20px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .back {
+            text-align: center;
+            margin-top: 16px;
+        }
+
+        .back a {
+            color: #1e3a8a;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📋 我的订单</h1>
+        <div id="ordersList"></div>
+        <div class="back"><a href="merchant.html">← 返回点餐</a></div>
+    </div>
+
+    <script>
+        let orders = JSON.parse(localStorage.getItem('campus_orders')) || [];
+
+        function renderOrders() {
+            const container = document.getElementById('ordersList');
+            if (orders.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:40px;">暂无订单<br><a href="merchant.html">去点餐</a></div>';
+                return;
+            }
+
+            let html = '';
+            orders.forEach(order => {
+                html += `
+                <div class="order-card">
+                    <div class="order-header">
+                        <span class="order-id">订单号: ${order.id}</span>
+                        <span class="order-status">${order.status}</span>
+                    </div>
+                    ${order.items.map(item => `
+                        <div class="order-item">
+                            <span>${item.dishName} x${item.quantity}</span>
+                            <span>¥${item.price * item.quantity}</span>
+                        </div>
+                    `).join('')}
+                    <div class="order-total">总计: ¥${order.total}</div>
+                    <div class="order-date">📅 ${order.date}</div>
+                    ${order.status === '待取餐' ? `<button class="refund-btn" onclick="requestRefund(${order.id})">申请退款</button>` : ''}
+                </div>
+            `;
+            });
+            container.innerHTML = html;
+        }
+
+        function requestRefund(orderId) {
+            const order = orders.find(o => o.id === orderId);
+            if (order && confirm(`确认退款订单 ${orderId} 吗？`)) {
+                order.status = '退款中';
+                localStorage.setItem('campus_orders', JSON.stringify(orders));
+                renderOrders();
+                alert('退款申请已提交');
+            }
+        }
+
+        renderOrders();
+    </script>
+</body>
+
+</html>

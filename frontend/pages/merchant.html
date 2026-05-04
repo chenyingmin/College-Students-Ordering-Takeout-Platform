@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>校园点餐平台 - 商家展示</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f8f9fc;
+            padding: 20px;
+            padding-bottom: 80px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+        }
+
+        .search-bar {
+            margin-bottom: 16px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 40px;
+            font-size: 16px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            background: white;
+            border: 1px solid #cbd5e1;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active,
+        .filter-btn:hover {
+            background: #1e3a8a;
+            color: white;
+            border-color: #1e3a8a;
+        }
+
+        .merchant-card {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .merchant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .merchant-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .rating-stars {
+            color: #f59e0b;
+            font-size: 14px;
+        }
+
+        .merchant-hours {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 8px;
+        }
+
+        .merchant-desc {
+            color: #475569;
+            font-size: 14px;
+            margin-bottom: 12px;
+        }
+
+        .btn-menu {
+            background: #1e3a8a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+            margin-right: 8px;
+        }
+
+        .btn-order {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .reviews-section {
+            margin-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            padding-top: 12px;
+        }
+
+        .review-item {
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .review-user {
+            font-weight: bold;
+            color: #1e3a8a;
+        }
+
+        .review-rating {
+            color: #f59e0b;
+            margin-left: 8px;
+        }
+
+        .review-date {
+            color: #94a3b8;
+            font-size: 11px;
+            margin-left: 8px;
+        }
+
+        .review-comment {
+            margin-top: 4px;
+            color: #334155;
+        }
+
+        .add-review {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .add-review input,
+        .add-review select {
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            font-size: 13px;
+        }
+
+        .add-review button {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* 底部购物车栏 */
+        .cart-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.1);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 800px;
+            margin: 0 auto;
+            z-index: 100;
+        }
+
+        .cart-bar-center {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .cart-info {
+            background: #1e3a8a;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+
+        .cart-btn {
+            background: #f59e0b;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🍽️ 校园点餐</h1>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="搜索商家..." oninput="filterMerchants()">
+        </div>
+
+        <div class="filter-buttons" id="filterButtons">
+            <button class="filter-btn active" data-type="all">全部</button>
+            <button class="filter-btn" data-type="canteen">🍚 食堂</button>
+            <button class="filter-btn" data-type="milktea">🧋 奶茶</button>
+            <button class="filter-btn" data-type="snack">🍢 小吃</button>
+        </div>
+
+        <div id="merchantList"></div>
+    </div>
+
+    <div class="cart-bar">
+        <button class="cart-btn" onclick="goToOrders()" style="background:#1e3a8a;">📋 我的订单</button>
+        <span>🛒 购物车</span>
+        <span class="cart-info" id="cartCount">0 件</span>
+        <button class="cart-btn" onclick="goToCart()">去下单</button>
+    </div>
+
+    <script>
+        // ========== 初始化数据 ==========
+        let merchants = [
+            { id: 1, name: '食堂A', category: 'canteen', rating: 4.5, hours: '8:00-20:00', description: '多样化的餐饮服务', reviews: [] },
+            { id: 2, name: '奶茶店B', category: 'milktea', rating: 4.0, hours: '10:00-22:00', description: '多种饮品和点心', reviews: [] },
+            { id: 3, name: '小吃店C', category: 'snack', rating: 4.2, hours: '12:00-23:00', description: '各种小吃夜宵', reviews: [] }
+        ];
+
+        // 菜品数据
+        const dishes = {
+            1: [{ id: 101, name: '红烧肉', price: 18 }, { id: 102, name: '番茄炒蛋', price: 12 }, { id: 103, name: '酸辣土豆丝', price: 10 }],
+            2: [{ id: 201, name: '珍珠奶茶', price: 12 }, { id: 202, name: '杨枝甘露', price: 18 }, { id: 203, name: '柠檬茶', price: 10 }],
+            3: [{ id: 301, name: '羊肉串', price: 8 }, { id: 302, name: '炸鸡排', price: 15 }, { id: 303, name: '臭豆腐', price: 10 }]
+        };
+
+        // 购物车
+        let cart = JSON.parse(localStorage.getItem('campus_cart')) || [];
+
+        // 加载保存的评价
+        function loadReviews() {
+            const saved = localStorage.getItem('campus_reviews');
+            if (saved) {
+                const reviewMap = JSON.parse(saved);
+                merchants.forEach(m => {
+                    if (reviewMap[m.id]) {
+                        m.reviews = reviewMap[m.id];
+                        // 重新计算评分
+                        if (m.reviews.length > 0) {
+                            const total = m.reviews.reduce((sum, r) => sum + r.rating, 0);
+                            m.rating = Math.round((total / m.reviews.length) * 10) / 10;
+                        }
+                    } else {
+                        m.reviews = [];
+                    }
+                });
+            }
+        }
+
+        // 保存评价
+        function saveReviews() {
+            const reviewMap = {};
+            merchants.forEach(m => {
+                reviewMap[m.id] = m.reviews;
+            });
+            localStorage.setItem('campus_reviews', JSON.stringify(reviewMap));
+        }
+
+        // 更新购物车显示
+        function updateCartDisplay() {
+            const count = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').innerText = count + ' 件';
+            localStorage.setItem('campus_cart', JSON.stringify(cart));
+        }
+
+        // 添加购物车
+        function addToCart(merchantId, dish) {
+            const existing = cart.find(item => item.dishId === dish.id);
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({
+                    merchantId: merchantId,
+                    merchantName: merchants.find(m => m.id === merchantId).name,
+                    dishId: dish.id,
+                    dishName: dish.name,
+                    price: dish.price,
+                    quantity: 1
+                });
+            }
+            updateCartDisplay();
+            alert(`已添加 ${dish.name} 到购物车`);
+        }
+
+        function goToCart() {
+            window.location.href = 'cart.html';
+        }
+
+        function goToOrders() {
+            window.location.href = 'orders.html';
+        }
+
+        // 星星显示
+        function getStars(rating) {
+            const full = Math.floor(rating);
+            const half = rating % 1 >= 0.5;
+            let stars = '★'.repeat(full);
+            if (half) stars += '½';
+            stars += '☆'.repeat(5 - full - (half ? 1 : 0));
+            return stars;
+        }
+
+        // 添加评价
+        function addReview(merchantId, userName, rating, comment) {
+            const merchant = merchants.find(m => m.id === merchantId);
+            if (!merchant) return;
+
+            const newReview = {
+                user: userName,
+                rating: rating,
+                comment: comment,
+                date: new Date().toISOString().split('T')[0]
+            };
+            merchant.reviews.unshift(newReview);
+
+            // 重新计算评分
+            const total = merchant.reviews.reduce((sum, r) => sum + r.rating, 0);
+            merchant.rating = Math.round((total / merchant.reviews.length) * 10) / 10;
+
+            saveReviews();
+            filterMerchants();
+        }
+
+        // 渲染商家列表
+        function renderMerchants(list) {
+            const container = document.getElementById('merchantList');
+            container.innerHTML = '';
+
+            list.forEach(merchant => {
+                const card = document.createElement('div');
+                card.className = 'merchant-card';
+
+                let reviewsHtml = '<div class="reviews-section"><strong>📝 评价</strong>';
+                if (merchant.reviews.length > 0) {
+                    merchant.reviews.slice(0, 3).forEach(r => {
+                        reviewsHtml += `
+                        <div class="review-item">
+                            <span class="review-user">${r.user}</span>
+                            <span class="review-rating">⭐ ${r.rating}</span>
+                            <span class="review-date">${r.date}</span>
+                            <div class="review-comment">${r.comment}</div>
+                        </div>
+                    `;
+                    });
+                } else {
+                    reviewsHtml += '<div style="color:#94a3b8; padding:8px;">暂无评价</div>';
+                }
+
+                reviewsHtml += `
+                <div class="add-review">
+                    <input type="text" placeholder="昵称" id="name_${merchant.id}" style="width:70px">
+                    <select id="rating_${merchant.id}">
+                        <option value="5">⭐⭐⭐⭐⭐</option>
+                        <option value="4">⭐⭐⭐⭐</option>
+                        <option value="3">⭐⭐⭐</option>
+                        <option value="2">⭐⭐</option>
+                        <option value="1">⭐</option>
+                    </select>
+                    <input type="text" placeholder="评价..." id="comment_${merchant.id}" style="width:120px">
+                    <button onclick="addReview(${merchant.id}, document.getElementById('name_${merchant.id}').value, parseInt(document.getElementById('rating_${merchant.id}').value), document.getElementById('comment_${merchant.id}').value)">发表</button>
+                </div>
+            </div>`;
+
+                // 菜品按钮
+                let dishesHtml = '<div style="margin-top:12px;">';
+                if (dishes[merchant.id]) {
+                    dishes[merchant.id].forEach(dish => {
+                        dishesHtml += `<button class="btn-order" onclick="addToCart(${merchant.id}, {id:${dish.id}, name:'${dish.name}', price:${dish.price}})">➕ ${dish.name} ¥${dish.price}</button>`;
+                    });
+                }
+                dishesHtml += '</div>';
+
+                card.innerHTML = `
+                <div class="merchant-header">
+                    <span class="merchant-name">${merchant.name}</span>
+                    <span class="rating-stars">${getStars(merchant.rating)} ${merchant.rating}</span>
+                </div>
+                <div class="merchant-hours">🕒 ${merchant.hours}</div>
+                <div class="merchant-desc">${merchant.description}</div>
+                <button class="btn-menu" onclick="alert('菜单：\\n${dishes[merchant.id]?.map(d => d.name + ' ¥' + d.price).join('\\n') || '暂无'}')">📋 查看菜单</button>
+                ${dishesHtml}
+                ${reviewsHtml}
+            `;
+                container.appendChild(card);
+            });
+        }
+
+        function filterMerchants() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const activeBtn = document.querySelector('.filter-btn.active');
+            const type = activeBtn ? activeBtn.dataset.type : 'all';
+
+            let filtered = merchants.filter(m =>
+                m.name.toLowerCase().includes(search) || m.description.toLowerCase().includes(search)
+            );
+            if (type !== 'all') {
+                filtered = filtered.filter(m => m.category === type);
+            }
+            renderMerchants(filtered);
+        }
+
+        // 筛选按钮事件
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                filterMerchants();
+            });
+        });
+
+        // 初始化
+        loadReviews();
+        filterMerchants();
+        updateCartDisplay();
+    </script>
+</body>
+
+</html>
