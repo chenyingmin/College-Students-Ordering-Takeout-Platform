@@ -1,94 +1,68 @@
-# user_center_service.py
-from datetime import datetime
-
 class UserCenterService:
     def __init__(self):
-        # 模拟用户数据
-        self.users = {
-            "student001": {
-                "user_id": "student001",
-                "name": "张三同学",
-                "phone": "138****1234",
-                "is_student_verified": False,
-                "orders": [
-                    {"order_id": "ORD001", "status": "已送达", "create_time": "2026-05-05 12:30"},
-                    {"order_id": "ORD002", "status": "配送中", "create_time": "2026-05-06 11:20"},
-                    {"order_id": "ORD003", "status": "待支付", "create_time": "2026-05-06 15:40"}
-                ],
-                "notifications": [
-                    {"id": 1, "content": "您的订单已送达，请尽快取餐", "read": False},
-                    {"id": 2, "content": "平台新功能上线：拼单点餐", "read": False}
-                ]
-            }
+        self.user = {
+            "user_id": "student001",
+            "name": "张三同学",
+            "student_verified": False,
+            "order_count": 3,
+            "message_count": 2
         }
 
-    def get_user_info(self, user_id):
-        """获取用户中心的基本信息"""
-        user = self.users.get(user_id)
-        if not user:
-            return {"success": False, "message": "用户不存在"}
-        
+    # 获取用户信息
+    def get_user_info(self):
         return {
-            "success": True,
-            "user_info": {
-                "name": user["name"],
-                "is_student_verified": user["is_student_verified"],
-                "order_count": len(user["orders"]),
-                "unread_notification_count": sum(1 for n in user["notifications"] if not n["read"])
-            }
+            "name": self.user["name"],
+            "student_verified": self.user["student_verified"],
+            "order_count": self.user["order_count"],
+            "message_count": self.user["message_count"]
         }
 
-    def student_verification(self, user_id, student_id, school_name):
-        """模拟校园身份认证"""
-        user = self.users.get(user_id)
-        if not user:
-            return {"success": False, "message": "用户不存在"}
-        
-        if user["is_student_verified"]:
-            return {"success": False, "message": "您的校园身份已认证"}
-        
-        # 这里可以加一些简单的校验逻辑
+    # 学生认证
+    def verify_student(self, student_id):
         if len(student_id) < 6:
-            return {"success": False, "message": "学号格式不正确"}
-        
-        user["is_student_verified"] = True
-        return {"success": True, "message": "校园身份认证成功！您已解锁学生专属优惠"}
+            return {"success": False, "msg": "学号格式不正确"}
+        self.user["student_verified"] = True
+        return {"success": True, "msg": "学生认证成功"}
 
-    def get_user_orders(self, user_id):
-        """获取用户所有订单"""
-        user = self.users.get(user_id)
-        if not user:
-            return {"success": False, "message": "用户不存在"}
-        
-        return {"success": True, "orders": user["orders"]}
+    # 获取订单列表
+    def get_orders(self):
+        return [
+            {"id": "ORD001", "status": "已完成", "time": "2026-05-05"},
+            {"id": "ORD002", "status": "配送中", "time": "2026-05-06"},
+            {"id": "ORD003", "status": "待支付", "time": "2026-05-06"}
+        ]
 
-    def mark_notification_read(self, user_id, notification_id):
-        """标记消息为已读"""
-        user = self.users.get(user_id)
-        if not user:
-            return {"success": False, "message": "用户不存在"}
-        
-        for notification in user["notifications"]:
-            if notification["id"] == notification_id:
-                notification["read"] = True
-                return {"success": True, "message": "消息已标记为已读"}
-        
-        return {"success": False, "message": "消息不存在"}
+    # 获取消息
+    def get_messages(self):
+        return [
+            {"id": 1, "content": "您的订单已送达", "read": False},
+            {"id": 2, "content": "平台新功能上线", "read": False}
+        ]
+
+    # 退出登录
+    def logout(self):
+        self.user = {
+            "user_id": None,
+            "name": "未登录",
+            "student_verified": False,
+            "order_count": 0,
+            "message_count": 0
+        }
+        return True
 
 
-# 测试代码
+# 直接运行测试
 if __name__ == "__main__":
     service = UserCenterService()
-    user_id = "student001"
 
-    # 1. 获取用户中心信息
-    print("用户中心信息：")
-    print(service.get_user_info(user_id))
+    print("=== 用户信息 ===")
+    print(service.get_user_info())
 
-    # 2. 模拟校园认证
-    print("\n模拟校园认证：")
-    print(service.student_verification(user_id, "2023001", "佛山大学"))
+    print("\n=== 学生认证 ===")
+    print(service.verify_student("2023001"))
 
-    # 3. 获取用户订单
-    print("\n用户订单列表：")
-    print(service.get_user_orders(user_id))
+    print("\n=== 订单列表 ===")
+    print(service.get_orders())
+
+    print("\n=== 消息列表 ===")
+    print(service.get_messages())
