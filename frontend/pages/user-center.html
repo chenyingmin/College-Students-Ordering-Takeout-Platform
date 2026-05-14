@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            background: #f5f7fa;
+        }
+        .container {
+            max-width: 900px;
+            margin: 30px auto;
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 15px rgba(0,0,0,0.08);
+        }
+        .user-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #409eff;
+            color: white;
+            font-size: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+        .username {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+        .status {
+            color: #666;
+            font-size: 14px;
+        }
+        .menu {
+            display: grid;
+            gap: 12px;
+        }
+        .item {
+            padding: 18px 20px;
+            background: #fafafa;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .item:hover {
+            background: #f0f5ff;
+        }
+        .item span {
+            font-size: 15px;
+        }
+        .badge {
+            background: #f56c6c;
+            color: white;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="user-header">
+            <div class="avatar">学</div>
+            <div class="username" id="name">加载中...</div>
+            <div class="status" id="status">状态获取中...</div>
+        </div>
+
+        <div class="menu">
+            <div class="item" onclick="openOrders()">
+                <span>我的订单</span>
+                <span class="badge" id="orderCount">0</span>
+            </div>
+            <div class="item" onclick="verifyStudent()">
+                <span>校园学生认证</span>
+                <span id="verifyText">去认证</span>
+            </div>
+            <div class="item" onclick="openMessages()">
+                <span>消息通知</span>
+                <span class="badge" id="msgCount">0</span>
+            </div>
+            <div class="item" onclick="openSettings()">
+                <span>账户设置</span>
+                <span></span>
+            </div>
+            <div class="item" onclick="userLogout()">
+                <span>退出登录</span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let user = {
+            name: "张三同学",
+            studentVerified: false,
+            orderCount: 3,
+            msgCount: 2
+        };
+
+        window.onload = function() {
+            document.getElementById("name").innerText = user.name;
+            document.getElementById("status").innerText = user.studentVerified ? "已完成学生认证" : "未认证";
+            document.getElementById("orderCount").innerText = user.orderCount;
+            document.getElementById("msgCount").innerText = user.msgCount;
+            document.getElementById("verifyText").innerText = user.studentVerified ? "已认证" : "去认证";
+        };
+
+        // 功能1：打开订单
+        function openOrders() {
+            alert("打开订单列表 → 共 " + user.orderCount + " 个订单");
+        }
+
+        // 功能2：学生认证
+        function verifyStudent() {
+            if (user.studentVerified) {
+                alert("您已完成校园认证！");
+                return;
+            }
+            alert("学生认证成功！");
+            user.studentVerified = true;
+            window.onload();
+        }
+
+        // 功能3：消息通知
+        function openMessages() {
+            alert("您有 " + user.msgCount + " 条未读消息\n1. 订单已送达\n2. 平台活动通知");
+        }
+
+        // 功能4：账户设置
+        function openSettings() {
+            alert("打开账户设置页面");
+        }
+
+        // 功能5：退出登录
+        function userLogout() {
+            if (confirm("确定退出登录？")) {
+                user.name = "未登录用户";
+                user.studentVerified = false;
+                user.orderCount = 0;
+                user.msgCount = 0;
+                window.onload();
+                alert("已退出登录");
+            }
+        }
+    </script>
+</body>
+</html>
